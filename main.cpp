@@ -5,7 +5,7 @@
 #include <string>
 using namespace std;
 
-// You will need tthese forward references.
+// You will need these forward references.
 class Expr;
 class Stmt;
 
@@ -231,22 +231,13 @@ private:
 	//?- can there be multiple elses?
 	//?- what is gotos role in if statement.
 	void buildIf() {
+		tokitr++; lexitr++;//pass if
+		tokitr++; lexitr++;//pass l paren
+		Expr* expr = buildExpr();
 
 	}
 	//
 	void buildWhile() {
-		tokitr++; lexitr++;//pass while
-		tokitr++; lexitr++;//pass left paren
-		Expr* expr = buildExpr();
-		tokitr++; lexitr++;//pass right paren
-		tokitr++; lexitr++;//pass loop
-		while (*tokitr != "t_loop") {
-			buildStmt();
-		}
-		if (*tokitr == "t_end") {
-
-		}
-
 
 
 	}
@@ -296,16 +287,36 @@ private:
 	Expr* buildExpr();
 
 	// headers for populate methods may not change
-	void populateTokenLexemes(istream& infile);
-	void populateSymbolTable(istream& infile);
+	void populateTokenLexemes(istream& infile) {
+		string token;
+		string lexeme;
+		while (infile >> token >> lexeme) {
+			tokens.push_back(token);
+			lexemes.push_back(lexeme);
+		}
+	}
+	void populateSymbolTable(istream& infile) {
+		string variable;
+		string dataType;
+		while (infile >> variable >> dataType) {
+			symboltable[variable] = dataType;
+		}
+	}
+	void populatePrecMap(istream& infile) {
+		string lexeme;
+		string valueString;
+		while (infile >> lexeme >> valueString) {
+			precMap[lexeme] = stoi(valueString);
+		}
+	}
 public:
 	Compiler(){}
 	// headers may not change
-	Compiler(istream& source, istream& symbols){
+	Compiler(istream& source, istream& symbols,istream& prec){
 		// build precMap - include logical, relational, arithmetic operators
-
 		populateTokenLexemes(source);
 		populateSymbolTable(symbols);
+		populatePrecMap(prec);
 	}
 
 	// The compile method is responsible for getting the instruction
