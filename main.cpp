@@ -36,169 +36,416 @@ public:
 
 class StringExpr : public Expr{
 public:
-    virtual string eval() = 0;
+    virtual string eval() = 0; // pure virtual method which is an abstract class
 };
 
 class IntExpr : public Expr{
 public:
-    virtual int eval() = 0;
+    virtual int eval() = 0; // pure virtual method which is an abstract class
 };
 
 class StringConstExpr : public StringExpr{
 private:
     string value;
 public:
-    StringConstExpr(string val){}
-    ~StringConstExpr(){}
-    string eval(){}
-    string toString(){}
+    StringConstExpr(string val) {
+	    value = val;
+    }
+    ~StringConstExpr() {
+	    // leave blank
+    }
+    string eval() {
+	    return value;
+    }
+    string toString() {
+	    return value;
+    }
 };
 
 class StringIDExpr : public StringExpr{
 private:
     string id;
 public:
-    StringIDExpr(string val){}
-    ~StringIDExpr(){}
-    string eval(){}
-    string toString(){}
+    StringIDExpr(string val) {
+	    id = val;
+    }
+    ~StringIDExpr() {
+
+    }
+    string eval() {
+		return symbolvalues[id]; // this will look for x and bring the value of x which in this case is "5".
+    }
+    string toString() { // return all the contents in one long statement, what do you want dump to see?
+		return id;
+    }
 };
 
-class StringPostFixExpr : public Expr{
+class StringPostFixExpr : public Expr{ // this will be building your postfix expression x + hello world, where x = "today" t_id x t_string hello world
+	// apply operator method like "add" which will repeatedly called.
 private:
     vector<string> expr;
     vector<string> exprtoks;
 public:
     StringPostFixExpr(){}
-    StringPostFixExpr(string x, string t){}
+    StringPostFixExpr(string x, string t) {
+
+    }
     ~StringPostFixExpr(){}
     string eval(){}
-    string toString(){}
+    string toString() { // this will be printing the postfix. make sure your group is initializing the symbol value.
+
+    }
 };
 
 class IntConstExpr : public IntExpr{
 private:
     int value;
 public:
-    IntConstExpr(int val){}
-    ~IntConstExpr(){}
-    int eval(){}
-    string toString(){}
+    IntConstExpr(int val) {
+    	value = val;
+    }
+    ~IntConstExpr() {
+    	// leave blank
+    }
+    int eval() {
+	    return value;
+    }
+    string toString() {
+		return to_string(value);
+    }
 };
 
 class IntIDExpr : public IntExpr{
 private:
     string id;
 public:
-    IntIDExpr(string val){}
-    ~IntIDExpr(){}
-    int eval(){}
-    string toString(){}
+    IntIDExpr(string val) {
+		id = val;
+    }
+    ~IntIDExpr() {
+	    // leave blank
+    }
+    int eval() {
+		return stoi(symbolvalues[id]);
+    }
+    string toString() {
+		return id;
+    }
 };
 
-class IntPostFixExpr : public IntExpr{
+class IntPostFixExpr : public IntExpr{ // evaluates the post fix form
 private:
     vector<string> expr;
+	int applyOperator(int a, int b, string oper) {
+		if (oper == "+") {
+			return a + b;
+		}
+		else if (oper == "-") {
+			return a - b;
+		}
+		else if (oper == "*") {
+			return a * b;
+		}
+		else if (oper == "/") {
+			return a / b; // int division!
+		}
+		else if (oper == "and") {
+			return a && b;
+		}
+		else if (oper == "%") {
+			return a % b;
+		}
+		else if (oper == "or") {
+			return a || b;
+		}
+		else if (oper == "<") {
+			return a < b;
+		}
+		else if (oper == ">") {
+			return a > b;
+		}
+		else if (oper == "<=") {
+			return a <= b;
+		}
+		else if (oper == ">=") {
+			return a >= b;
+		}
+		else if (oper == "==") {
+			return a == b;
+		}
+		else if (oper == "!=") {
+			return a != b;
+		}
+		return 0;
+	}
 public:
-    IntPostFixExpr(){}
-    IntPostFixExpr(string x){expr.push_back(x);}
+    IntPostFixExpr() {
+    }
+    IntPostFixExpr(vector<string> x) {
+	    for (int i = 0; i < x.size(); i++) {
+		    expr.push_back(x[i]);
+	    }
+    }
     ~IntPostFixExpr(){}
-    int eval(){}
+    int eval() {
+	    vector<int> tempNumHolder; // create the stack use the import statement!!
+    	int result = 0;
+    	for (const string& token : expr) {
+    		if (isdigit(token[0])) {
+    			tempNumHolder.push_back(stoi(token));
+    		}
+    		else if (token == "+" || token == "-" || token == "*" || token == "/" || token == "%" || token == "and" || token == "or" || token == "<" || token == ">" || token == "<=" || token == ">=" || token == "==" || token == "!=") {
+				int b = tempNumHolder.back(); // becomes the right hand side of operand
+    			tempNumHolder.pop_back();
+    			int a = tempNumHolder.back();
+    			tempNumHolder.pop_back();
+				tempNumHolder.push_back(applyOperator(a, b, token));
+    		}
+    		else {
+    			tempNumHolder.push_back(stoi(symbolvalues[token]));
+    		}
+    	}
+    	return tempNumHolder.back();
+    }
     string toString(){}
 };
 
-class Stmt{ // statements are executed!
-private:
-	string name;
-public:
-	Stmt(){}
-	virtual ~Stmt(){};
-	virtual string toString() = 0;
-	virtual void execute() = 0;
+class Stmt // statements are executed!
+{
+    private:
+        string name;
+    public:
+        Stmt(string n)
+        {
+            name = n;
+        }
+        virtual ~Stmt(){}
+        virtual string toString() = 0;
+        virtual void execute() = 0;
 };
 
-class AssignStmt : public Stmt{
-private:
-	string var;
-	Expr* p_expr;
-public:
-	AssignStmt();
-	~AssignStmt();
-	string toString();
-	void execute();
+class AssignStmt : public Stmt
+{
+    private:
+        string var;
+        Expr* p_expr;
+    public:
+        AssignStmt(string v, Expr*& p) : Stmt("AssignStmt")
+        {
+            var = v;
+            p_expr = p;
+        }
+        ~AssignStmt(){}
+        string toString()
+        {
+            return "AssignStmt " + var + " " + (*p_expr).toString();
+        }
+        void execute()
+        {
+            if (symboltable[var] == "t_integer")
+            {
+                symbolvalues[var] = (*dynamic_cast<IntExpr*>(p_expr)).eval();
+            }
+            else
+            {
+                symbolvalues[var] = (*dynamic_cast<StringExpr*>(p_expr)).eval();
+            }
+            pc++;
+        }
 };
 
-class InputStmt : public Stmt{
-private:
-	string var;
-public:
-	InputStmt();
-	~InputStmt();
-	string toString();
-	void execute();
+class InputStmt : public Stmt
+{
+    private:
+        string var;
+    public:
+        InputStmt(string v) : Stmt("InputStmt")
+        {
+            var = v;
+        }
+        ~InputStmt(){}
+        string toString()
+        {
+            return "InputStmt " + var;
+        }
+        void execute()
+        {
+            cin >> symbolvalues[var];
+            pc++;
+        }
 };
 
-class StrOutStmt : public Stmt{
-private:
-	string value;
-public:
-	StrOutStmt();
-	~StrOutStmt();
-	string toString();
-	void execute();
+class StrOutStmt : public Stmt
+{
+    private:
+        string value;
+    public:
+        StrOutStmt(string v) : Stmt("StrOutStmt")
+        {
+            value = v;
+        }
+        ~StrOutStmt(){}
+        string toString()
+        {
+            return "StrOutStmt " + value;
+        }
+        void execute()
+        {
+            cout << value << endl;
+            pc++;
+        }
 };
 
-class IntOutStmt : public Stmt{
-private:
-	int value;
-public:
-	IntOutStmt();
-	~IntOutStmt();
-	string toString();
-	void execute();
+class IntOutStmt : public Stmt
+{
+    private:
+        int value;
+    public:
+        IntOutStmt(int v) : Stmt("IntOutStmt")
+        {
+            value = v;
+        }
+        ~IntOutStmt(){}
+        string toString()
+        {
+            return "IntOut " + to_string(value);
+        }
+        void execute()
+        {
+            cout << value << endl;
+            pc++;
+        }
 };
 
-class IDOutStmt : public Stmt{
-private:
-	string var;
-public:
-	IDOutStmt();
-	~IDOutStmt();
-	string toString();
-	void execute();
+class IDOutStmt : public Stmt
+{
+    private:
+        string var;
+    public:
+        IDOutStmt(string v) : Stmt("IDOutStmt")
+        {
+            var = v;
+        }
+        ~IDOutStmt(){}
+        string toString()
+        {
+            return "IDOutStmt " + var;
+        }
+        void execute()
+        {
+            cout << symbolvalues[var] << endl;
+            pc++;
+        }
 };
 
-class IfStmt : public Stmt{
-private:
-	Expr* p_expr;
-	int elsetarget;
-public:
-	IfStmt();
-	~IfStmt();
-	string toString();
-	void execute();
+class IfStmt : public Stmt
+{
+    private:
+        Expr* p_expr;
+        int elsetarget;
+    public:
+        IfStmt(Expr*& e, int t) : Stmt("IfStmt")
+        {
+            p_expr = e;
+            elsetarget = t;
+        }
+        ~IfStmt(){}
+        string toString()
+        {
+            return "IfStmt " + (*p_expr).toString() + " " + to_string(elsetarget);
+        }
+        void execute()
+        {
+            if (typeid(p_expr) == typeid(IntExpr))
+            {
+                if ((*dynamic_cast<IntExpr*>(p_expr)).eval() == 1)
+                {
+                    pc++;
+                }
+                else
+                {
+                    pc = elsetarget;
+                }
+            }
+            else if (typeid(p_expr) == typeid(StringExpr))
+            {
+                if ((*dynamic_cast<StringExpr*>(p_expr)).eval() == "true")
+                {
+                    pc++;
+                }
+                else
+                {
+                    pc = elsetarget;
+                }
+            }
+        }
 };
 
-class WhileStmt : public Stmt{
-private:
-	Expr* p_expr;
-	int elsetarget;
-public:
-	WhileStmt();
-	~WhileStmt();
-	string toString();
-	void execute();
+class WhileStmt : public Stmt
+{
+    private:
+        Expr* p_expr;
+        int elsetarget;
+    public:
+        WhileStmt(Expr*& e, int t) : Stmt("WhileStmt")
+        {
+            p_expr = e;
+            elsetarget = t;
+        }
+        ~WhileStmt(){}
+        string toString()
+        {
+            return "WhileStmt " + (*p_expr).toString() + " " + to_string(elsetarget);
+        }
+        void execute()
+        {
+            if (typeid(p_expr) == typeid(IntExpr))
+            {
+                if ((*dynamic_cast<IntExpr*>(p_expr)).eval() == 1)
+                {
+                    pc++;
+                }
+                else
+                {
+                    pc = elsetarget;
+                }
+            }
+            else if (typeid(p_expr) == typeid(StringExpr))
+            {
+                if ((*dynamic_cast<StringExpr*>(p_expr)).eval() == "true")
+                {
+                    pc++;
+                }
+                else
+                {
+                    pc = elsetarget;
+                }
+            }
+        }
 };
 
-class GoToStmt : public Stmt{
-private:
-	int target;
-public:
-	GoToStmt();
-	~GoToStmt();
-	void setTarget();
-	string toString();
-	void execute();
+class GoToStmt : public Stmt
+{
+    private:
+        int target;
+    public:
+        GoToStmt(int t) : Stmt("GoToStmt")
+        {
+            target = t;
+        }
+        ~GoToStmt(){}
+        void setTarget(int t)
+        {
+            target = t;
+        }
+        string toString()
+        {
+            return "GoToStmt " + to_string(target);
+        }
+        void execute()
+        {
+            pc = target;
+        }
 };
 
 class Compiler{
@@ -328,6 +575,41 @@ public:
 	// table.
 	void run(){}
 };
+
+void dump() {
+	// Prints vartable, instruction table, symboltable
+	cout << "--------------------------" << endl;
+	cout << "---DUMP METHOD CALLED, NOW PRINTING---" << endl;
+	cout << "--------------------------" << endl;
+
+	cout << "---PRINTING INSTRUCTION TABLE---" << endl;
+	for ( int i = 0; i < insttable.size(); i++ ) {
+		cout << "--------------------------" << endl;
+		cout << "~Instruction~" << endl;
+		if (insttable[i]) {
+			cout << "Instruction #" << i << ":" << endl;
+			cout << insttable[i]->toString() << endl;
+		}
+		else {
+			cout << "Null Instruction" << endl;
+		}
+	}
+
+	cout << "---PRINTING SYMBOL TABLE AND VALUES---" << endl;
+	for ( map<string, string>::iterator itr = symboltable.begin(); itr != symboltable.end(); itr++ ) {
+
+		string tempId = itr->first; // Extracts variable name -> tempId
+		string dataType = itr->second; // Extracts variable type -> dataType
+
+		cout << "--------------------------" << endl;
+		if (dataType == "t_integer") {
+			cout << "Integer " << tempId << " = " << symbolvalues[tempId] << endl;
+		}
+		else if (dataType == "t_string") {
+			cout << "String " << tempId << " = " << symbolvalues[tempId] << endl;
+		}
+	}
+}
 
 
 int main(){
