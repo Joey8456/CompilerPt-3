@@ -210,98 +210,242 @@ public:
     string toString(){}
 };
 
-class Stmt{ // statements are executed!
-private:
-	string name;
-public:
-	Stmt(){}
-	virtual ~Stmt(){};
-	virtual string toString() = 0;
-	virtual void execute() = 0;
+class Stmt // statements are executed!
+{
+    private:
+        string name;
+    public:
+        Stmt(string n)
+        {
+            name = n;
+        }
+        virtual ~Stmt(){}
+        virtual string toString() = 0;
+        virtual void execute() = 0;
 };
 
-class AssignStmt : public Stmt{
-private:
-	string var;
-	Expr* p_expr;
-public:
-	AssignStmt();
-	~AssignStmt();
-	string toString();
-	void execute();
+class AssignStmt : public Stmt
+{
+    private:
+        string var;
+        Expr* p_expr;
+    public:
+        AssignStmt(string v, Expr*& p) : Stmt("AssignStmt")
+        {
+            var = v;
+            p_expr = p;
+        }
+        ~AssignStmt(){}
+        string toString()
+        {
+            return "AssignStmt " + var + " " + (*p_expr).toString();
+        }
+        void execute()
+        {
+            if (symboltable[var] == "t_integer")
+            {
+                symbolvalues[var] = (*dynamic_cast<IntExpr*>(p_expr)).eval();
+            }
+            else
+            {
+                symbolvalues[var] = (*dynamic_cast<StringExpr*>(p_expr)).eval();
+            }
+            pc++;
+        }
 };
 
-class InputStmt : public Stmt{
-private:
-	string var;
-public:
-	InputStmt();
-	~InputStmt();
-	string toString();
-	void execute();
+class InputStmt : public Stmt
+{
+    private:
+        string var;
+    public:
+        InputStmt(string v) : Stmt("InputStmt")
+        {
+            var = v;
+        }
+        ~InputStmt(){}
+        string toString()
+        {
+            return "InputStmt " + var;
+        }
+        void execute()
+        {
+            cin >> symbolvalues[var];
+            pc++;
+        }
 };
 
-class StrOutStmt : public Stmt{
-private:
-	string value;
-public:
-	StrOutStmt();
-	~StrOutStmt();
-	string toString();
-	void execute();
+class StrOutStmt : public Stmt
+{
+    private:
+        string value;
+    public:
+        StrOutStmt(string v) : Stmt("StrOutStmt")
+        {
+            value = v;
+        }
+        ~StrOutStmt(){}
+        string toString()
+        {
+            return "StrOutStmt " + value;
+        }
+        void execute()
+        {
+            cout << value << endl;
+            pc++;
+        }
 };
 
-class IntOutStmt : public Stmt{
-private:
-	int value;
-public:
-	IntOutStmt();
-	~IntOutStmt();
-	string toString();
-	void execute();
+class IntOutStmt : public Stmt
+{
+    private:
+        int value;
+    public:
+        IntOutStmt(int v) : Stmt("IntOutStmt")
+        {
+            value = v;
+        }
+        ~IntOutStmt(){}
+        string toString()
+        {
+            return "IntOut " + to_string(value);
+        }
+        void execute()
+        {
+            cout << value << endl;
+            pc++;
+        }
 };
 
-class IDOutStmt : public Stmt{
-private:
-	string var;
-public:
-	IDOutStmt();
-	~IDOutStmt();
-	string toString();
-	void execute();
+class IDOutStmt : public Stmt
+{
+    private:
+        string var;
+    public:
+        IDOutStmt(string v) : Stmt("IDOutStmt")
+        {
+            var = v;
+        }
+        ~IDOutStmt(){}
+        string toString()
+        {
+            return "IDOutStmt " + var;
+        }
+        void execute()
+        {
+            cout << symbolvalues[var] << endl;
+            pc++;
+        }
 };
 
-class IfStmt : public Stmt{
-private:
-	Expr* p_expr;
-	int elsetarget;
-public:
-	IfStmt();
-	~IfStmt();
-	string toString();
-	void execute();
+class IfStmt : public Stmt
+{
+    private:
+        Expr* p_expr;
+        int elsetarget;
+    public:
+        IfStmt(Expr*& e, int t) : Stmt("IfStmt")
+        {
+            p_expr = e;
+            elsetarget = t;
+        }
+        ~IfStmt(){}
+        string toString()
+        {
+            return "IfStmt " + (*p_expr).toString() + " " + to_string(elsetarget);
+        }
+        void execute()
+        {
+            if (typeid(p_expr) == typeid(IntExpr))
+            {
+                if ((*dynamic_cast<IntExpr*>(p_expr)).eval() == 1)
+                {
+                    pc++;
+                }
+                else
+                {
+                    pc = elsetarget;
+                }
+            }
+            else if (typeid(p_expr) == typeid(StringExpr))
+            {
+                if ((*dynamic_cast<StringExpr*>(p_expr)).eval() == "true")
+                {
+                    pc++;
+                }
+                else
+                {
+                    pc = elsetarget;
+                }
+            }
+        }
 };
 
-class WhileStmt : public Stmt{
-private:
-	Expr* p_expr;
-	int elsetarget;
-public:
-	WhileStmt();
-	~WhileStmt();
-	string toString();
-	void execute();
+class WhileStmt : public Stmt
+{
+    private:
+        Expr* p_expr;
+        int elsetarget;
+    public:
+        WhileStmt(Expr*& e, int t) : Stmt("WhileStmt")
+        {
+            p_expr = e;
+            elsetarget = t;
+        }
+        ~WhileStmt(){}
+        string toString()
+        {
+            return "WhileStmt " + (*p_expr).toString() + " " + to_string(elsetarget);
+        }
+        void execute()
+        {
+            if (typeid(p_expr) == typeid(IntExpr))
+            {
+                if ((*dynamic_cast<IntExpr*>(p_expr)).eval() == 1)
+                {
+                    pc++;
+                }
+                else
+                {
+                    pc = elsetarget;
+                }
+            }
+            else if (typeid(p_expr) == typeid(StringExpr))
+            {
+                if ((*dynamic_cast<StringExpr*>(p_expr)).eval() == "true")
+                {
+                    pc++;
+                }
+                else
+                {
+                    pc = elsetarget;
+                }
+            }
+        }
 };
 
-class GoToStmt : public Stmt{
-private:
-	int target;
-public:
-	GoToStmt();
-	~GoToStmt();
-	void setTarget();
-	string toString();
-	void execute();
+class GoToStmt : public Stmt
+{
+    private:
+        int target;
+    public:
+        GoToStmt(int t) : Stmt("GoToStmt")
+        {
+            target = t;
+        }
+        ~GoToStmt(){}
+        void setTarget(int t)
+        {
+            target = t;
+        }
+        string toString()
+        {
+            return "GoToStmt " + to_string(target);
+        }
+        void execute()
+        {
+            pc = target;
+        }
 };
 
 class Compiler{
