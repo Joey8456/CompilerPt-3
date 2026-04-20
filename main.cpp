@@ -565,6 +565,41 @@ public:
 	void run(){}
 };
 
+void dump() {
+	// Prints vartable, instruction table, symboltable
+	cout << "--------------------------" << endl;
+	cout << "---DUMP METHOD CALLED, NOW PRINTING---" << endl;
+	cout << "--------------------------" << endl;
+
+	cout << "---PRINTING INSTRUCTION TABLE---" << endl;
+	for ( int i = 0; i < insttable.size(); i++ ) {
+		cout << "--------------------------" << endl;
+		cout << "~Instruction~" << endl;
+		if (insttable[i]) {
+			cout << "Instruction #" << i << ":" << endl;
+			cout << insttable[i]->toString() << endl;
+		}
+		else {
+			cout << "Null Instruction" << endl;
+		}
+	}
+
+	cout << "---PRINTING SYMBOL TABLE AND VALUES---" << endl;
+	for ( map<string, string>::iterator itr = symboltable.begin(); itr != symboltable.end(); itr++ ) {
+
+		string tempId = itr->first; // Extracts variable name -> tempId
+		string dataType = itr->second; // Extracts variable type -> dataType
+
+		cout << "--------------------------" << endl;
+		if (dataType == "t_integer") {
+			cout << "Integer " << tempId << " = " << symbolvalues[tempId] << endl;
+		}
+		else if (dataType == "t_string") {
+			cout << "String " << tempId << " = " << symbolvalues[tempId] << endl;
+		}
+	}
+}
+
 
 int main(){
 	ifstream source("data.txt");
