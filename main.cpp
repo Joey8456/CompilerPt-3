@@ -36,74 +36,177 @@ public:
 
 class StringExpr : public Expr{
 public:
-    virtual string eval() = 0;
+    virtual string eval() = 0; // pure virtual method which is an abstract class
 };
 
 class IntExpr : public Expr{
 public:
-    virtual int eval() = 0;
+    virtual int eval() = 0; // pure virtual method which is an abstract class
 };
 
 class StringConstExpr : public StringExpr{
 private:
     string value;
 public:
-    StringConstExpr(string val){}
-    ~StringConstExpr(){}
-    string eval(){}
-    string toString(){}
+    StringConstExpr(string val) {
+	    value = val;
+    }
+    ~StringConstExpr() {
+	    // leave blank
+    }
+    string eval() {
+	    return value;
+    }
+    string toString() {
+	    return value;
+    }
 };
 
 class StringIDExpr : public StringExpr{
 private:
     string id;
 public:
-    StringIDExpr(string val){}
-    ~StringIDExpr(){}
-    string eval(){}
-    string toString(){}
+    StringIDExpr(string val) {
+	    id = val;
+    }
+    ~StringIDExpr() {
+
+    }
+    string eval() {
+		return symbolvalues[id]; // this will look for x and bring the value of x which in this case is "5".
+    }
+    string toString() { // return all the contents in one long statement, what do you want dump to see?
+		return id;
+    }
 };
 
-class StringPostFixExpr : public Expr{
+class StringPostFixExpr : public Expr{ // this will be building your postfix expression x + hello world, where x = "today" t_id x t_string hello world
+	// apply operator method like "add" which will repeatedly called.
 private:
     vector<string> expr;
     vector<string> exprtoks;
 public:
     StringPostFixExpr(){}
-    StringPostFixExpr(string x, string t){}
+    StringPostFixExpr(string x, string t) {
+
+    }
     ~StringPostFixExpr(){}
     string eval(){}
-    string toString(){}
+    string toString() { // this will be printing the postfix. make sure your group is initializing the symbol value.
+
+    }
 };
 
 class IntConstExpr : public IntExpr{
 private:
     int value;
 public:
-    IntConstExpr(int val){}
-    ~IntConstExpr(){}
-    int eval(){}
-    string toString(){}
+    IntConstExpr(int val) {
+    	value = val;
+    }
+    ~IntConstExpr() {
+    	// leave blank
+    }
+    int eval() {
+	    return value;
+    }
+    string toString() {
+		return to_string(value);
+    }
 };
 
 class IntIDExpr : public IntExpr{
 private:
     string id;
 public:
-    IntIDExpr(string val){}
-    ~IntIDExpr(){}
-    int eval(){}
-    string toString(){}
+    IntIDExpr(string val) {
+		id = val;
+    }
+    ~IntIDExpr() {
+	    // leave blank
+    }
+    int eval() {
+		return stoi(symbolvalues[id]);
+    }
+    string toString() {
+		return id;
+    }
 };
 
-class IntPostFixExpr : public IntExpr{
+class IntPostFixExpr : public IntExpr{ // evaluates the post fix form
 private:
     vector<string> expr;
+	int applyOperator(int a, int b, string oper) {
+		if (oper == "+") {
+			return a + b;
+		}
+		else if (oper == "-") {
+			return a - b;
+		}
+		else if (oper == "*") {
+			return a * b;
+		}
+		else if (oper == "/") {
+			return a / b; // int division!
+		}
+		else if (oper == "and") {
+			return a && b;
+		}
+		else if (oper == "%") {
+			return a % b;
+		}
+		else if (oper == "or") {
+			return a || b;
+		}
+		else if (oper == "<") {
+			return a < b;
+		}
+		else if (oper == ">") {
+			return a > b;
+		}
+		else if (oper == "<=") {
+			return a <= b;
+		}
+		else if (oper == ">=") {
+			return a >= b;
+		}
+		else if (oper == "==") {
+			return a == b;
+		}
+		else if (oper == "!=") {
+			return a != b;
+		}
+		return 0;
+	}
 public:
-    IntPostFixExpr(){}
-    IntPostFixExpr(string x){expr.push_back(x);}
+    IntPostFixExpr() {
+    }
+    IntPostFixExpr(vector<string> x) {
+	    for (int i = 0; i < x.size(); i++) {
+		    expr.push_back(x[i]);
+	    }
+    }
     ~IntPostFixExpr(){}
-    int eval(){}
+    int eval() {
+	    vector<int> tempNumHolder; // create the stack use the import statement!!
+    	int result = 0;
+    	for (const string& token : expr) {
+    		if (isdigit(token[0])) {
+    			tempNumHolder.push_back(stoi(token));
+    		}
+    		else if (token == "+" || token == "-" || token == "*" || token == "/" || token == "%" || token == "and" || token == "or" || token == "<" || token == ">" || token == "<=" || token == ">=" || token == "==" || token == "!=") {
+				int b = tempNumHolder.back(); // becomes the right hand side of operand
+    			tempNumHolder.pop_back();
+    			int a = tempNumHolder.back();
+    			tempNumHolder.pop_back();
+				tempNumHolder.push_back(applyOperator(a, b, token));
+    		}
+    		else {
+    			tempNumHolder.push_back(stoi(symbolvalues[token]));
+    		}
+    	}
+    	return tempNumHolder.back();
+    }
     string toString(){}
 };
 
