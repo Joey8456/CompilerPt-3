@@ -1,0 +1,4 @@
+t_integer x
+t_integer y
+t_integer z
+t_string varA

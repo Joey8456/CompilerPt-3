@@ -1,0 +1,33 @@
+t_var var
+t_integer integer
+t_id x
+s_comma ,
+t_id z
+s_semi ;
+t_string string
+t_id a
+s_comma ,
+t_id b
+s_semi ;
+t_main main
+t_output output
+s_lparen (
+t_id x
+s_rparen )
+t_output output
+s_lparen (
+t_id a
+s_rparen )
+t_id z
+s_assign =
+t_id z
+s_plus +
+t_number 10
+s_semi ;
+t_id b
+s_assign =
+t_id b
+s_plus +
+t_text hello world
+s_semi ;
+t_end

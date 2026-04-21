@@ -1,0 +1,4 @@
+t_integer x
+t_integer z
+t_string a
+t_string b
