@@ -1,0 +1,2 @@
+t_string empty
+t_string notEmpty
