@@ -579,25 +579,69 @@ private:
 		else if (*tokitr == "t_output") {
 			buildOutput();
 		}
+		else {
+			cout << "ERROR IN buildstmt";
+		}
 
 	}
 	//if(..) then ... end if ...
-	// if(x > 0)
-	//?- can there be multiple elses?
-	//?- what is gotos role in if statement.
-	void buildIf() {
-		tokitr++; lexitr++;//pass if
-		tokitr++; lexitr++;//pass l paren
-		Expr* expr = buildExpr();
-
-	}
+	// if(x > 0) then x=10; output(11) else if (x >1) then
+	//?- what do we put if there is no else?
 	//
-	void buildWhile() {
+	void buildIf() {
+		bool containsElse = false;
+		tokitr++; lexitr++; //pass if
+		tokitr++; lexitr++; //pass l paren
 
+		Expr* expr = buildExpr();
+		GoToStmt* goToStmt = new GoToStmt(0);
+
+		IfStmt* ifStmt = new IfStmt(expr,0);
+		insttable.push_back(ifStmt);
+
+		tokitr++; lexitr++;//pass r paren
+		tokitr++; lexitr++;//pass then
+
+		while (*tokitr != "t_end") {
+			if (*tokitr == "t_else") {
+				containsElse = true;
+				int elseTarget = insttable.size();
+				ifStmt->setElseTarget(elseTarget);
+				insttable.push_back(goToStmt);
+				tokitr++; lexitr++;
+			}
+			buildStmt();
+		}
 
 	}
 
+	//Done i think
+	void buildWhile() {
+		tokitr++; lexitr++;//pass while
+		tokitr++; lexitr++;//left parent
 
+		int start = insttable.size();
+		GoToStmt* goToStmt = new GoToStmt(start);
+
+		Expr* expr = buildExpr();
+		WhileStmt* whileStmt = new WhileStmt(expr,0);
+		insttable.push_back(whileStmt);
+
+		tokitr++; lexitr++;//pass r parrent
+		tokitr++; lexitr++;//pass loop
+
+		while (*tokitr != "t_end") {
+			buildStmt();
+		}
+
+		int endDex = insttable.size() + 1;
+		whileStmt->setElsetarget(endDex);
+
+		insttable.push_back(goToStmt);
+
+		tokitr++; lexitr++;//end
+		tokitr++; lexitr++;//loop
+	}
 
 	//DONE
 	void buildAssign() {
@@ -605,9 +649,8 @@ private:
 		tokitr++; lexitr++; // move past id
 		tokitr++; lexitr++; // move past =
 		Expr* expr = buildExpr();
-		AssignStmt* asstmt = new AssignStmt();
+		AssignStmt* asstmt = new AssignStmt(id, expr);
 		insttable.push_back(asstmt);
-		tokitr++; lexitr++; //TODO SEE IF buildExpr() knocks it up one or not
 	}
 
 	//Done
@@ -629,7 +672,7 @@ private:
 			insttable.push_back(output);
 		}
 		else if(*tokitr == "t_integer") {
-			IntOutStmt* output = new IntOutStmt(*lexitr);
+			IntOutStmt* output = new IntOutStmt(stoi(*lexitr));
 			insttable.push_back(output);
 		}
 		else if(*tokitr == "t_id") {
@@ -677,12 +720,29 @@ public:
 	// The compile method is responsible for getting the instruction
 	// table built.  It will call the appropriate build methods.
 	bool compile() {
+		tokitr = tokens.begin();
+		lexitr = lexemes.begin();
+		while (*tokitr != "t_main") {
+			tokitr++; lexitr++; // loops until it reachs main
+		}
+		tokitr++; lexitr++; // moves past main
+		while (*tokitr != "t_end") {
+			buildStmt();
+		}
+		return true;
 	}
 
 	// The run method will execute the code in the instruction
 	// table.
-	void run(){}
+	//TODO does run increase pc, or does something else.
+	void run() {
+		pc = 0;
+		while (pc < insttable.size()) {
+			insttable.at(pc)->execute();
+		}
+	}
 };
+
 
 void dump() {
 	// Prints vartable, instruction table, symboltable
