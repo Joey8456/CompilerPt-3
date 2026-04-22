@@ -2,15 +2,18 @@
 
 ## QUICK OVERVIEW
 Test # | What it has/does\
-1 | Instantiates integers and strings, tests an input and an if statement, string concatenation, outputs string\
-2 | Outputs string and integer WITHOUT assignment, this tests instantiation\
+1 | Variable instantiation, input, output, and string concatenation\
+2 | Output without variable instantiation\
 3 | Infinite while loop\
 4 | Non-infinite while loop\
 5 | Relational operators with strings\
-6 | If statements with strings
+6 | If statements with strings\
+7 | Nested if statements\
+8 | Divide by zero
 
 ## TEST 1
-Tests a basic if statement, integer input, and string concatenation.
+Tests a basic if statement, integer input, and string concatenation.\
+Code:
 ```
 var integer x, y, z;
 string varA
@@ -24,14 +27,14 @@ main
     output(varA)
 end
 ```
-
-output:
+Expected output:
 ```
 "first partsecond partlast part"
 ```
 
 ## TEST 2
-Tests instantiation, output, and basic assignment, addition, and string concatenation.
+Tests instantiation, output, and basic assignment, addition, and string concatenation.\
+Code:
 ```
 var integer x, z;
 string a, b;
@@ -42,15 +45,15 @@ main
 	b = b + "hello world";
 end
 ```
-
-output: 
+Expected output: 
 ```
 0 (0 and an empty string)
 x -> 0, z -> 10, a -> "", b -> "hello world"
 ```
 
 ## TEST 3
-Tests a simple, but infinite, while loop.
+Tests a simple, but infinite, while loop.\
+Code:
 ```
 var
 	integer x;
@@ -61,8 +64,7 @@ main
 	end loop
 end
 ```
-
-output:
+Expected output:
 ```
 1
 1
@@ -72,7 +74,8 @@ output:
 ```
 
 ## TEST 4
-Tests a while loop. Should increment, output, and eventually stop.
+Tests a while loop. Should increment, output, and eventually stop.\
+Code:
 ```
 var
 	integer x;
@@ -84,7 +87,7 @@ main
 	end loop
 end
 ```
-output:
+Expected output:
 ```
 1
 2
@@ -94,7 +97,8 @@ output:
 ```
 
 ## TEST 5
-Tests greater than and less than comparisons between two strings of equal length.
+Tests greater than and less than comparisons between two strings of equal length.\
+Code:
 ```
 var
 	string first, second;
@@ -113,14 +117,15 @@ main
 	end if
 end
 ```
-output:
+Expected output:
 ```
 congrats
 congrats
 ```
 
 ## TEST 6
-Tests if statements with an empty string and a non-empty string.
+Tests if statements with an empty string and a non-empty string.\
+Code:
 ```
 var
 	string empty, notEmpty;
@@ -138,8 +143,50 @@ main
 	end if
 end
 ```
-output:
+Expected output:
 ```
 good
 good
+```
+
+## TEST 7
+Tests nested if statements.\
+Code:
+```
+var
+	integer a, b, c;
+main
+	a = 7;
+	b = 5;
+	c = 10;
+	if (a > b) then
+		output("good")
+		if (c > b) then
+			output("also good")
+			if (a > c) then
+				output("not good")
+			end if
+		end if
+	end if
+end
+```
+Expected output:
+```
+good
+also good
+```
+
+## TEST 8
+Tests division by zero.\
+Code:
+```
+var
+	integer aNumber;
+main
+	aNumber = 7 / 0;
+end
+```
+Expected output:
+```
+Error: Attempt to divide by zero.
 ```
