@@ -18,3 +18,22 @@ main output ( x ) output ( a ) z = z + 10; b = b + "hello world"; end
 
 //output -> 0 (0 and an empty string)
 x -> 0, z -> 10, a -> "", b -> "hello world"
+
+// TEST 3
+// Tests a simple, but infinite while loop
+var integer x;
+main x = 10;
+while ( x > 0 ) loop
+output ( 1 ) end loop
+end
+
+// Should print 1 infinitely
+
+// TEST 4
+// Tests a while loop, should increment, output, and eventually stop
+var integer x;
+main x = 1 ;
+while ( x < 5 )
+loop output ( x ) x = x + 1 ;
+end loop
+end
