@@ -18,8 +18,9 @@
 Tests a basic if statement, integer input, and string concatenation.\
 Code:
 ```
-var integer x, y, z;
-string varA
+var
+	integer x, y, z;
+	string varA
 main
     input(x)
     if (x > 5) then
@@ -39,8 +40,9 @@ first partsecond partlast part
 Tests instantiation, output, and basic assignment, addition, and string concatenation.\
 Code:
 ```
-var integer x, z;
-string a, b;
+var
+	integer x, z;
+	string a, b;
 main
 	output(x)
 	output(a)
