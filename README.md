@@ -9,7 +9,8 @@ Test # | What it has/does\
 5 | Relational operators with strings\
 6 | If statements with strings\
 7 | Nested if statements\
-8 | Divide by zero
+8 | Divide by zero\
+9 | Numerical operators + expression assignment
 
 ## TEST 1
 Tests a basic if statement, integer input, and string concatenation.\
@@ -189,4 +190,24 @@ end
 Expected output:
 ```
 Error: Attempt to divide by zero.
+```
+
+## TEST 9
+Tests assignment using an expression with several numerical operators. Verifies that precedence is implemented properly.\
+Code:
+```
+var
+	integer a, b, result;
+main
+	a = 0;
+	b = 10;
+	result = a + b * 3 - 2 + 7 % 2;
+	output(result)
+	output(29)
+end
+```
+Expected output:
+```
+29
+29
 ```
