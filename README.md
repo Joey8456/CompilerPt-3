@@ -1,6 +1,13 @@
 ~ Official Test Documentation ~
 // TESTING DOCUMENTATION
 
+QUICK OVERVIEW:
+Test # | What it has/does
+1 | Instantiates integers and strings,
+tests an input and an if statement,
+string concatenation, outputs string
+2 | Outputs string and integer WITHOUT assignment,
+this tests instantiation
 // TEST 1
 // Tests a basic if statement, integer input, and string concatenation
 var integer x, y, z; string varA
