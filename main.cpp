@@ -783,8 +783,9 @@ void dump() {
 int main(){
 	ifstream source("data.txt");
 	ifstream symbols("vars.txt");
+	ifstream prec("prec.txt");
 	if (!source || !symbols) exit(-1);
-	Compiler c(source, symbols);
+	Compiler c(source, symbols,prec);
 	c.compile();
 	// might want to call dump to check if everything built correctly
 	// dump();
