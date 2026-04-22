@@ -379,6 +379,10 @@ class IfStmt : public Stmt
                 }
             }
         }
+        void setElsetarget(int val)
+        {
+            elsetarget = val;
+        }
 };
 
 class WhileStmt : public Stmt
@@ -421,6 +425,10 @@ class WhileStmt : public Stmt
                     pc = elsetarget;
                 }
             }
+        }
+        void setElsetarget(int val)
+        {
+            elsetarget = val;
         }
 };
 
