@@ -1,7 +1,7 @@
 # ~ Official Test Documentation ~
 
 ## QUICK OVERVIEW
-Test # | What it has/does\
+\# | Brief description of this test\
 1 | Variable instantiation, input, output, and string concatenation\
 2 | Output without variable instantiation\
 3 | Infinite while loop\
@@ -10,14 +10,17 @@ Test # | What it has/does\
 6 | If statements with strings\
 7 | Nested if statements\
 8 | Divide by zero\
-9 | Numerical operators + expression assignment
+9 | Arithmetic operator precedence + expression assignment\
+10 | Relational and logical operator precedence\
+11 | Arithmetic, relational, and logical operator precedence all at once
 
 ## TEST 1
 Tests a basic if statement, integer input, and string concatenation.\
 Code:
 ```
-var integer x, y, z;
-string varA
+var
+	integer x, y, z;
+	string varA
 main
     input(x)
     if (x > 5) then
@@ -30,15 +33,16 @@ end
 ```
 Expected output:
 ```
-"first partsecond partlast part"
+first partsecond partlast part
 ```
 
 ## TEST 2
 Tests instantiation, output, and basic assignment, addition, and string concatenation.\
 Code:
 ```
-var integer x, z;
-string a, b;
+var
+	integer x, z;
+	string a, b;
 main
 	output(x)
 	output(a)
@@ -193,7 +197,7 @@ Error: Attempt to divide by zero.
 ```
 
 ## TEST 9
-Tests assignment using an expression with several numerical operators. Verifies that precedence is implemented properly.\
+Tests assignment using an expression with several arithmetic operators. Verifies that precedence is implemented properly.\
 Code:
 ```
 var
@@ -210,4 +214,46 @@ Expected output:
 ```
 29
 29
+```
+
+## TEST 10
+Tests the precedence of relational and logical operators.\
+Code:
+```
+var
+	integer a, b, c;
+main
+	a = 3;
+	b = 2;
+	c = 5;
+	if (a > b and a < c) then
+		output("good")
+	else
+		output("bad")
+	end if
+end
+```
+Expected output:
+```
+good
+```
+
+## TEST 11
+Tests the precedence of all three operator types in tandem- arithmetic, relational, and logical.\
+Code:
+```
+var
+	integer a;
+main
+	a = 2;
+	if (a + 2 > 3 and 4 + a * 6 < 30) then
+		output("good")
+	else
+		output("bad")
+	end if
+end
+```
+Expected output:
+```
+good
 ```
