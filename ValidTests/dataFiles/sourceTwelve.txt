@@ -20,7 +20,7 @@ t_then then
 t_if if
 s_lparen (
 t_number 4
-s_eq =
+s_eq ==
 t_number 4
 s_rparen )
 t_end end
