@@ -585,6 +585,7 @@ private:
 		}
 		else {
 			cout << "ERROR IN buildstmt";
+			exit(1);
 		}
 
 	}
@@ -666,6 +667,7 @@ private:
 		Expr* expr = buildExpr();
 		AssignStmt* asstmt = new AssignStmt(id, expr);
 		insttable.push_back(asstmt);
+		tokitr++; lexitr++; //pass semi
 	}
 
 	//Done
@@ -697,7 +699,11 @@ private:
 		tokitr++; lexitr++;//past out
 		tokitr++; lexitr++;//past right paren
 	}
-	Expr* buildExpr();
+	Expr* buildExpr() {
+		Expr* expression = new IntConstExpr(0);
+		tokitr++; lexitr++;
+		return expression;
+	};
 
 	// headers for populate methods may not change
 	void populateTokenLexemes(istream& infile) {
@@ -734,12 +740,48 @@ public:
 
 	// The compile method is responsible for getting the instruction
 	// table built.  It will call the appropriate build methods.
-	//TODO Add false case.
+	//TODO Add false case. ALSO ADD FOR VARS BEFORE
 	bool compile() {
 		tokitr = tokens.begin();
-		lexitr = lexemes.begin();
-		while (*tokitr != "t_main") {
-			tokitr++; lexitr++; // loops until it reachs main
+		lexitr = lexemes.begin();bool VDECdone = false;
+
+		if (*tokitr == "t_var") {
+			tokitr++; lexitr++; //pass var
+			while (!VDECdone) {
+				bool comma = true;
+				if (*tokitr == "t_string") {
+					while (comma) {
+						tokitr++; lexitr++; //pass string/comma
+						symbolvalues[*lexitr] = "";
+						tokitr++; lexitr++;//pass 'x'
+						if (*tokitr == "s_comma") {
+							comma = true;
+						}
+						else {
+							comma = false;
+						}
+					}
+					tokitr++; lexitr++; // pass semi
+				}
+				else if (*tokitr == "t_integer") {
+					bool comma = true;
+					while (comma) {
+						tokitr++; lexitr++; //pass string/comma
+						symbolvalues[*lexitr] = "0";
+						tokitr++; lexitr++;//pass 'x'
+						if (*tokitr == "s_comma") {
+							comma = true;
+						}
+						else {
+							comma = false;
+						}
+					}
+					tokitr++; lexitr++; // pass semi
+				}
+				else {
+					VDECdone = true;
+				}
+			}
 		}
 		tokitr++; lexitr++; // moves past main
 		while (*tokitr != "t_end") {
@@ -753,6 +795,7 @@ public:
 	void run() {
 		pc = 0;
 		while (pc < insttable.size()) {
+			cout << pc << endl;
 			insttable.at(pc)->execute();
 		}
 	}
@@ -796,14 +839,17 @@ void dump() {
 
 
 int main(){
-	ifstream source("data.txt");
-	ifstream symbols("vars.txt");
+	ifstream source("sourceTwo.txt");
+	ifstream symbols("symbol.txt");
 	ifstream prec("prec.txt");
-	if (!source || !symbols) exit(-1);
+
+	if (!source || !symbols) {
+		cout << "Error opening files." << endl;
+		exit(-1);
+	}
 	Compiler c(source, symbols,prec);
 	c.compile();
-	// might want to call dump to check if everything built correctly
-	// dump();
+	dump();
 	c.run();
 	return 0;
 }
