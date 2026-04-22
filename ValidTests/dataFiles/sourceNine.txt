@@ -22,7 +22,7 @@ s_plus +
 t_id b
 s_mult *
 t_number 3
-s_sub -
+s_minus -
 t_number 2
 s_plus +
 t_number 7
