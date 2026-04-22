@@ -32,7 +32,7 @@ end
 ```
 Expected output:
 ```
-"first partsecond partlast part"
+first partsecond partlast part
 ```
 
 ## TEST 2
