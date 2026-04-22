@@ -38,6 +38,7 @@ s_plus +
 t_text second part
 s_plus +
 t_text last part
+s_semi ;
 t_output output
 s_lparen (
 t_id varA
