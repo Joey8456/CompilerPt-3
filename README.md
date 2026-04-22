@@ -2,8 +2,8 @@
 
 ## QUICK OVERVIEW
 Test # | What it has/does\
-1 | Instantiates integers and strings, tests an input and an if statement, string concatenation, outputs string\
-2 | Outputs string and integer WITHOUT assignment, this tests instantiation\
+1 | Variable instantiation, input, output, and string concatenation\
+2 | Output without variable instantiation\
 3 | Infinite while loop\
 4 | Non-infinite while loop\
 5 | Relational operators with strings\
