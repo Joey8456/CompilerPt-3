@@ -560,7 +560,11 @@ class Compiler{
 private:
 	//Added funcs
 	//checks tok and calls correct build statement
-
+	void runThroughIf() {
+		while (*tokitr != "t_else" && *tokitr != "t_end") {
+			buildStmt();
+		}
+	}
 	//DONE I think
 	void buildStmt() {
 		if (*tokitr == "t_if") {
@@ -589,7 +593,8 @@ private:
 	//?- what do we put if there is no else?
 	//
 	void buildIf() {
-		bool containsElse = false;
+		bool end = false;
+		bool elseTargetFound = false;
 		tokitr++; lexitr++; //pass if
 		tokitr++; lexitr++; //pass l paren
 
@@ -602,17 +607,27 @@ private:
 		tokitr++; lexitr++;//pass r paren
 		tokitr++; lexitr++;//pass then
 
-		while (*tokitr != "t_end") {
+		while (!end) {
+			runThroughIf();
 			if (*tokitr == "t_else") {
-				containsElse = true;
-				int elseTarget = insttable.size();
-				ifStmt->setElseTarget(elseTarget);
+				int elseTarget = insttable.size() + 1;
+				elseTargetFound = true;
+				ifStmt->setElsetarget(elseTarget);
 				insttable.push_back(goToStmt);
-				tokitr++; lexitr++;
+				tokitr++; lexitr++; //move past else
 			}
-			buildStmt();
+			else if (*tokitr == "t_end") {
+				end = true;
+			}
 		}
+		int endDex = insttable.size();
+		goToStmt->setTarget(endDex);
 
+		if (!elseTargetFound) {
+			ifStmt->setElsetarget(endDex);
+		}
+		tokitr++; lexitr++;//pass end
+		tokitr++; lexitr++;// pass if
 	}
 
 	//Done i think
@@ -719,6 +734,7 @@ public:
 
 	// The compile method is responsible for getting the instruction
 	// table built.  It will call the appropriate build methods.
+	//TODO Add false case.
 	bool compile() {
 		tokitr = tokens.begin();
 		lexitr = lexemes.begin();
@@ -734,7 +750,6 @@ public:
 
 	// The run method will execute the code in the instruction
 	// table.
-	//TODO does run increase pc, or does something else.
 	void run() {
 		pc = 0;
 		while (pc < insttable.size()) {
