@@ -100,9 +100,7 @@ public:
     	vector<string> tempStringStack;
 
     	for (const string& token : expr) {
-    		if (token == "+" || token == "==" || token == "!=" ||
-				token == "<" || token == ">" || token == "<=" || token == ">=" ||
-				token == "and" || token == "or") {
+    		if (token == "+" || token == "==" || token == "!=" || token == "<" || token == ">" || token == "<=" || token == ">=" || token == "and" || token == "or") {
     			string b = tempStringStack.back();
     			tempStringStack.pop_back();
     			string a = tempStringStack.back();
