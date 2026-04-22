@@ -81,19 +81,115 @@ public:
 };
 
 class StringPostFixExpr : public Expr{ // this will be building your postfix expression x + hello world, where x = "today" t_id x t_string hello world
-	// apply operator method like "add" which will repeatedly called.
+	// apply operator method like "add" which will repeatedly called. USE STRING POINTERS
 private:
     vector<string> expr;
     vector<string> exprtoks;
 public:
     StringPostFixExpr(){}
-    StringPostFixExpr(string x, string t) {
-
+    StringPostFixExpr(vector<string> x) {
+		for (int i = 0; i < x.size(); i++) {
+			expr.push_back(x[i]);
+		}
     }
-    ~StringPostFixExpr(){}
-    string eval(){}
-    string toString() { // this will be printing the postfix. make sure your group is initializing the symbol value.
+    ~StringPostFixExpr() { // since we're using pointers, need to clear it so no dangling memory.
+	    expr.clear();
+    }
+	string* eval() {
+    	string* result = new string();
+    	vector<string> tempStringStack;
 
+    	for (const string& token : expr) {
+    		if (token == "+" || token == "==" || token == "!=" ||
+				token == "<" || token == ">" || token == "<=" || token == ">=" ||
+				token == "and" || token == "or") {
+    			string b = tempStringStack.back();
+    			tempStringStack.pop_back();
+    			string a = tempStringStack.back();
+    			tempStringStack.pop_back();
+    			if (token == "+") {
+                    tempStringStack.push_back(a + b);
+                }
+                else if (token == "==") {
+                    if (a == b) {
+                        tempStringStack.push_back("true");
+                    }
+                    else {
+                        tempStringStack.push_back("false");
+                    }
+                }
+                else if (token == "!=") {
+                    if (a != b) {
+                        tempStringStack.push_back("true");
+                    }
+                    else {
+                        tempStringStack.push_back("false");
+                    }
+                }
+                else if (token == "<") {
+                    if (a < b) {
+                        tempStringStack.push_back("true");
+                    }
+                    else {
+                        tempStringStack.push_back("false");
+                    }
+                }
+                else if (token == ">") {
+                    if (a > b) {
+                        tempStringStack.push_back("true");
+                    }
+                    else {
+                        tempStringStack.push_back("false");
+                    }
+                }
+                else if (token == "<=") {
+                    if (a <= b) {
+                        tempStringStack.push_back("true");
+                    }
+                    else {
+                        tempStringStack.push_back("false");
+                    }
+                }
+                else if (token == ">=") {
+                    if (a >= b) {
+                        tempStringStack.push_back("true");
+                    }
+                    else {
+                        tempStringStack.push_back("false");
+                    }
+                }
+                else if (token == "and") {
+                    if (a == "true" && b == "true") {
+                        tempStringStack.push_back("true");
+                    }
+                    else {
+                        tempStringStack.push_back("false");
+                    }
+                }
+                else if (token == "or") {
+                    if (a == "true" || b == "true") {
+                        tempStringStack.push_back("true");
+                    }
+                    else {
+                        tempStringStack.push_back("false");
+                    }
+                }
+            }
+            else {
+                tempStringStack.push_back(symbolvalues[token]);
+            }
+    	}
+    	if (!tempStringStack.empty()) {
+    		*result = tempStringStack.back();
+    	}
+    	return result;
+    }
+	string toString() {
+	    string result = "";
+    	for (int i = 0; i < expr.size(); ++i) {
+    		result += expr[i];
+    	}
+    	return result;
     }
 };
 
