@@ -13,7 +13,7 @@ t_then then
 t_if if
 s_lparen (
 t_number 4
-s_ne
+s_ne !=
 t_number 3
 s_rparen )
 t_then then
@@ -22,6 +22,11 @@ s_lparen (
 t_number 4
 s_eq ==
 t_number 4
+s_rparen )
+t_then then
+t_output output
+s_lparen (
+t_text good
 s_rparen )
 t_end end
 t_if if
