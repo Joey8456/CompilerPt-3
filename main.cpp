@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <queue>
 #include <string>
 using namespace std;
 
@@ -709,7 +710,7 @@ private:
 		vector<string> outputQueue;
 		vector<string> stack; // hold operators
 		bool hasInt = false;
-		bool hasFloat = false;
+		bool hasStr = false;
 		auto peekTok = tokitr;
 		auto peekLex = lexitr;
 		++peekTok;
@@ -738,6 +739,49 @@ private:
 				}
 			}
 		}
+		while (*tokitr != "s_rparen" && *tokitr != "s_semi") {
+			string token = *tokitr;
+			string lexeme = *lexitr;
+			if (token == "t_integer") {
+				hasInt = true;
+				outputQueue.push_back(lexeme);
+			}
+			else if (token == "t_string") {
+				hasStr = true;
+				outputQueue.push_back(lexeme);
+			}
+			else if (token == "t_id") {
+				if (symboltable.find(lexeme) != symboltable.end()) {
+					if (symboltable[lexeme] == "t_string") {
+						hasStr = true;
+					} else {
+						hasInt = true;
+					}
+					outputQueue.push_back(lexeme);
+				}
+			}
+			else if (token == "s_lparen") {
+				stack.push_back(lexeme);
+			}
+			else if (precMap.find(lexeme) != precMap.end()) {
+				while (!stack.empty() && precMap[stack.back()] >= precMap[lexeme]) {
+					outputQueue.push_back(stack.back());
+					stack.pop_back();
+				}
+				stack.push_back(lexeme);
+			}
+			++tokitr; ++lexitr;
+		}
+		while (!stack.empty()) {
+			outputQueue.push_back(stack.back());
+			stack.pop_back();
+		}
+		if (hasStr) {
+			return new StringPostFixExpr(outputQueue);
+		} else {
+			return new IntPostFixExpr(outputQueue);
+		}
+		return nullptr;
 	};
 
 	// headers for populate methods may not change
