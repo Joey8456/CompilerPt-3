@@ -700,9 +700,44 @@ private:
 		tokitr++; lexitr++;//past right paren
 	}
 	Expr* buildExpr() {
-		Expr* expression = new IntConstExpr(0);
-		tokitr++; lexitr++;
-		return expression;
+		// Expr* expression = new IntConstExpr(0);
+		// tokitr++; lexitr++;
+		// return expression;
+		// Instantiate your expressions for what kind you're going to use
+		// first you need to check what kinda you're dealing with (6 diff instances)
+		// Once you know what you're dealing with, run the while loop and the shunting algorithm begins
+		vector<string> outputQueue;
+		vector<string> stack; // hold operators
+		bool hasInt = false;
+		bool hasFloat = false;
+		auto peekTok = tokitr;
+		auto peekLex = lexitr;
+		++peekTok;
+		++peekLex;
+		string firstToken = *tokitr;
+		string firstLexeme = *lexitr;
+
+		if (firstToken == "t_string" && *peekTok == "s_rparen") { // handles if ("hello")
+			string val = *lexitr;
+			tokitr++; lexitr++;
+			return new StringConstExpr(val);
+		}
+		if (firstToken == "t_number" && *peekTok == "s_rparen") { // handles if (12)
+			string val = *lexitr;
+			++tokitr; lexitr++;
+			return new IntConstExpr(stoi(val));
+		}
+		if (firstToken == "t_id" && *peekTok == "s_rparen") { // handles if (x)
+			string varName = *lexitr;
+			++tokitr; lexitr++;
+			if (symboltable.find(varName) != symboltable.end()) {
+				if (symboltable[varName] == "t_string") {
+					return new StringConstExpr(varName);
+				} else {
+					return new IntIDExpr(varName);
+				}
+			}
+		}
 	};
 
 	// headers for populate methods may not change
