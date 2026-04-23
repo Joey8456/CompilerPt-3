@@ -732,7 +732,7 @@ private:
 			++tokitr; lexitr++;
 			if (symboltable.find(varName) != symboltable.end()) {
 				if (symboltable[varName] == "t_string") {
-					return new StringConstExpr(varName);
+					return new StringIDExpr(varName);
 				} else {
 					return new IntIDExpr(varName);
 				}
