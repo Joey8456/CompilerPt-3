@@ -12,7 +12,9 @@
 8 | Divide by zero\
 9 | Arithmetic operator precedence + expression assignment\
 10 | Relational and logical operator precedence\
-11 | Arithmetic, relational, and logical operator precedence all at once
+11 | Arithmetic, relational, and logical operator precedence all at once\
+12 | Relational operators without variables\
+13 | While inside an if
 
 ## TEST 1
 Tests a basic if statement, integer input, and string concatenation.\
@@ -255,5 +257,58 @@ end
 ```
 Expected output:
 ```
+good
+```
+
+## TEST 12
+Tests relational operators with non-variable values.\
+Code:
+```
+main
+	if (3 >= 3 and 3 <= 3) then
+		if (4 != 3) then
+			if (4 == 4) then
+				output("good")
+			end if
+		end if
+	end if
+end
+```
+Expected output:
+```
+good
+```
+
+## TEST 13
+Tests a while loop within an if statement.\
+Code:
+```
+var
+	integer x;
+main
+	x = 10;
+	if (x > 5) then
+		x = x - 2;
+		while (x > 3) loop
+			output(x)
+			x = x - 2;
+		end loop
+		output(x)
+		if (x < 4) then
+			x = 8;
+		end if
+	end if
+
+	if (x == 8) then
+		output("good")
+	end if
+end
+```
+Expected output:
+```
+8
+6
+4
+2
 good
 ```
