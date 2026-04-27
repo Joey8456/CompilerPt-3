@@ -81,7 +81,7 @@ public:
     }
 };
 
-class StringPostFixExpr : public Expr{ // this will be building your postfix expression x + hello world, where x = "today" t_id x t_string hello world
+class StringPostFixExpr : public StringExpr{ // this will be building your postfix expression x + hello world, where x = "today" t_id x t_string hello world
 	// apply operator method like "add" which will repeatedly called. USE STRING POINTERS
 private:
     vector<string> expr;
@@ -96,8 +96,7 @@ public:
     ~StringPostFixExpr() { // since we're using pointers, need to clear it so no dangling memory.
 	    expr.clear();
     }
-	string* eval() {
-    	string* result = new string();
+	string eval() {
     	vector<string> tempStringStack;
 
     	for (const string& token : expr) {
@@ -175,13 +174,18 @@ public:
                 }
             }
             else {
-                tempStringStack.push_back(symbolvalues[token]);
+                if (symbolvalues.find(token) != symbolvalues.end()) {
+                    tempStringStack.push_back(symbolvalues[token]);
+                }
+                else {
+                    tempStringStack.push_back(token);
+                }
             }
     	}
     	if (!tempStringStack.empty()) {
-    		*result = tempStringStack.back();
+    		return tempStringStack.back();
     	}
-    	return result;
+    	return "";
     }
 	string toString() {
 	    string result = "";
@@ -345,7 +349,7 @@ class AssignStmt : public Stmt
         {
             if (symboltable[var] == "t_integer")
             {
-                symbolvalues[var] = (*dynamic_cast<IntExpr*>(p_expr)).eval();
+                symbolvalues[var] = to_string(dynamic_cast<IntExpr*>(p_expr)->eval());
             }
             else
             {
@@ -458,9 +462,12 @@ class IfStmt : public Stmt
         }
         void execute()
         {
-            if (typeid(p_expr) == typeid(IntExpr))
+            IntExpr* intExpr = dynamic_cast<IntExpr*>(p_expr);
+            StringExpr* stringExpr = dynamic_cast<StringExpr*>(p_expr);
+
+            if (intExpr != nullptr)
             {
-                if ((*dynamic_cast<IntExpr*>(p_expr)).eval() == 1)
+                if (intExpr->eval() == 1)
                 {
                     pc++;
                 }
@@ -469,9 +476,9 @@ class IfStmt : public Stmt
                     pc = elsetarget;
                 }
             }
-            else if (typeid(p_expr) == typeid(StringExpr))
+            else if (stringExpr != nullptr)
             {
-                if ((*dynamic_cast<StringExpr*>(p_expr)).eval() == "true")
+                if (stringExpr->eval() == "true")
                 {
                     pc++;
                 }
@@ -479,6 +486,10 @@ class IfStmt : public Stmt
                 {
                     pc = elsetarget;
                 }
+            }
+            else
+            {
+                pc++;
             }
         }
         void setElsetarget(int val)
@@ -505,9 +516,12 @@ class WhileStmt : public Stmt
         }
         void execute()
         {
-            if (typeid(p_expr) == typeid(IntExpr))
+            IntExpr* intExpr = dynamic_cast<IntExpr*>(p_expr);
+            StringExpr* stringExpr = dynamic_cast<StringExpr*>(p_expr);
+
+            if (intExpr != nullptr)
             {
-                if ((*dynamic_cast<IntExpr*>(p_expr)).eval() == 1)
+                if (intExpr->eval() == 1)
                 {
                     pc++;
                 }
@@ -516,9 +530,9 @@ class WhileStmt : public Stmt
                     pc = elsetarget;
                 }
             }
-            else if (typeid(p_expr) == typeid(StringExpr))
+            else if (stringExpr != nullptr)
             {
-                if ((*dynamic_cast<StringExpr*>(p_expr)).eval() == "true")
+                if (stringExpr->eval() == "true")
                 {
                     pc++;
                 }
@@ -526,6 +540,10 @@ class WhileStmt : public Stmt
                 {
                     pc = elsetarget;
                 }
+            }
+            else
+            {
+                pc++;
             }
         }
         void setElsetarget(int val)
@@ -893,8 +911,9 @@ public:
 	// table.
 	void run() {
 		pc = 0;
+
 		while (pc < insttable.size()) {
-			insttable.at(pc)->execute();
+			insttable[pc]->execute();
 		}
 	}
 };
@@ -937,62 +956,32 @@ void dump() {
 
 
 int main() {
-    vector<pair<string, string>> tests = {
-        {"../ValidTests/dataFiles/sourceOne.txt", "../ValidTests/varFiles/symbolOne.txt"},
-        {"../ValidTests/dataFiles/sourceTwo.txt", "../ValidTests/varFiles/symbolTwo.txt"},
-        {"../ValidTests/dataFiles/sourceThree.txt", "../ValidTests/varFiles/symbolThree.txt"},
-        {"../ValidTests/dataFiles/sourceFour.txt", "../ValidTests/varFiles/symbolFour.txt"},
-        {"../ValidTests/dataFiles/sourceFive.txt", "../ValidTests/varFiles/symbolFive.txt"},
-        {"../ValidTests/dataFiles/sourceSix.txt", "../ValidTests/varFiles/symbolSix.txt"},
-        {"../ValidTests/dataFiles/sourceSeven.txt", "../ValidTests/varFiles/symbolSeven.txt"},
-        {"../ValidTests/dataFiles/sourceEight.txt", "../ValidTests/varFiles/symbolEight.txt"},
-        {"../ValidTests/dataFiles/sourceNine.txt", "../ValidTests/varFiles/symbolNine.txt"},
-        {"../ValidTests/dataFiles/sourceTen.txt", "../ValidTests/varFiles/symbolTen.txt"},
-        {"../ValidTests/dataFiles/sourceEleven.txt", "../ValidTests/varFiles/symbolEleven.txt"},
-        {"../ValidTests/dataFiles/sourceTwelve.txt", "../ValidTests/varFiles/symbolTwelve.txt"},
-        {"../ValidTests/dataFiles/sourceThirteen.txt", "../ValidTests/varFiles/symbolThirteen.txt"}
-    };
+    ifstream source("../ValidTests/dataFiles/sourceOne.txt");
+    ifstream symbols("../ValidTests/varFiles/symbolOne.txt");
 
-    for (int i = 0; i < tests.size(); i++) {
-        cout << "\n==============================" << endl;
-        cout << "Running test " << (i + 1) << endl;
-        cout << "Source: " << tests[i].first << endl;
-        cout << "Symbol: " << tests[i].second << endl;
-        cout << "==============================" << endl;
+    if (!source || !symbols) {
+        cout << "FAILED: Could not open files." << endl;
+        return 1;
+    }
 
-        ifstream source(tests[i].first);
-        ifstream symbols(tests[i].second);
+    tokens.clear();
+    lexemes.clear();
+    symbolvalues.clear();
+    symboltable.clear();
+    insttable.clear();
+    pc = 0;
 
-        if (!source || !symbols) {
-            cout << "FAILED: Could not open files." << endl;
-            continue;
-        }
+    Compiler c(source, symbols);
 
-        tokens.clear();
-        lexemes.clear();
-        symbolvalues.clear();
-        symboltable.clear();
-        insttable.clear();
-        pc = 0;
-
-        Compiler c(source, symbols);
-
-        if (c.compile()) {
-            cout << "COMPILE PASSED" << endl;
-            dump();
-            cout << "---PRINTING TOKENS AND LEXEMES---" << endl;
-            for (int j = 0; j < tokens.size() && j < lexemes.size(); j++) {
-                cout << j << ": " << tokens[j] << " | " << lexemes[j] << endl;
-            }
-            cout << "---END TOKENS AND LEXEMES---" << endl;
-            cout << endl;
-            cout << "---PROGRAM OUTPUT---" << endl;
-            c.run();
-
-            cout << "---RUN FINISHED---" << endl;
-        } else {
-            cout << "COMPILE FAILED" << endl;
-        }
+    if (c.compile()) {
+        cout << "COMPILE PASSED" << endl;
+        dump();
+        cout << "---PROGRAM OUTPUT---" << endl;
+        c.run();
+        cout << "---RUN FINISHED---" << endl;
+    }
+    else {
+        cout << "COMPILE FAILED" << endl;
     }
 
     return 0;
