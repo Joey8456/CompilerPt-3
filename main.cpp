@@ -6,7 +6,6 @@
 #include <string>
 using namespace std;
 
-// You will need these forward references.
 class Expr;
 class Stmt;
 
@@ -27,9 +26,8 @@ void dump(); 				// prints vartable, instable, symboltable
 
 
 // Classes Stmt and Expr
-// You are allowed to add methods if needed. You should NOT need to add member variables.
 
-class Expr{ // expressions are evaluated!
+class Expr{
 public:
 	virtual string toString() = 0;
 	virtual ~Expr(){}
@@ -74,15 +72,14 @@ public:
 
     }
     string eval() {
-		return symbolvalues[id]; // this will look for x and bring the value of x which in this case is "5".
+		return symbolvalues[id];
     }
-    string toString() { // return all the contents in one long statement, what do you want dump to see?
+    string toString() {
 		return id;
     }
 };
 
-class StringPostFixExpr : public StringExpr{ // this will be building your postfix expression x + hello world, where x = "today" t_id x t_string hello world
-	// apply operator method like "add" which will repeatedly called. USE STRING POINTERS
+class StringPostFixExpr : public StringExpr{
 private:
     vector<string> expr;
     vector<string> exprtoks;
@@ -585,7 +582,6 @@ private:
 			buildStmt();
 		}
 	}
-	//DONE I think
 	void buildStmt() {
 		if (*tokitr == "t_if") {
 			buildIf();
@@ -593,7 +589,6 @@ private:
 		else if (*tokitr == "t_while") {
 			buildWhile();
 		}
-		//Might need to check if correct
 		else if (*tokitr == "t_id") {
 			buildAssign();
 		}
@@ -612,10 +607,6 @@ private:
 		}
 
 	}
-	//if(..) then ... end if ...
-	// if(x > 0) then x=10; output(11) else if (x >1) then
-	//?- what do we put if there is no else?
-	//
 	void buildIf() {
 		bool end = false;
 		bool elseTargetFound = false;
@@ -723,12 +714,6 @@ private:
 		tokitr++; lexitr++;//past right paren
 	}
 	Expr* buildExpr() {
-		// Expr* expression = new IntConstExpr(0);
-		// tokitr++; lexitr++;
-		// return expression;
-		// Instantiate your expressions for what kind you're going to use
-		// first you need to check what kinda you're dealing with (6 diff instances)
-		// Once you know what you're dealing with, run the while loop and the shunting algorithm begins
 		vector<string> outputQueue;
 		vector<string> stack; // hold operators
 		bool hasInt = false;
@@ -806,7 +791,6 @@ private:
 		return nullptr;
 	};
 
-	// headers for populate methods may not change
 	void populateTokenLexemes(istream& infile) {
 		string token;
 		string lexeme;
@@ -834,9 +818,7 @@ private:
 	}
 public:
 	Compiler(){}
-	// headers may not change
 	Compiler(istream& source, istream& symbols){
-		// build precMap - include logical, relational, arithmetic operators
 		precMap["or"] = 5;
 		precMap["and"] = 4;
 		precMap["<"] = 3;
@@ -854,9 +836,6 @@ public:
 		populateSymbolTable(symbols);
 	}
 
-	// The compile method is responsible for getting the instruction
-	// table built.  It will call the appropriate build methods.
-	//TODO Add false case. ALSO ADD FOR VARS BEFORE
 	bool compile() {
 		tokitr = tokens.begin();
 		lexitr = lexemes.begin();
