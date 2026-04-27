@@ -585,6 +585,9 @@ private:
 			buildOutput();
 		}
 		else {
+			cout << *lexitr << endl;
+			lexitr++;
+			cout << *lexitr << endl;
 			cout << "ERROR IN buildstmt";
 			exit(1);
 		}
@@ -685,11 +688,11 @@ private:
 	void buildOutput() {
 		tokitr++; lexitr++; // move past output
 		tokitr++; lexitr++; // move past left paren
-		if(*tokitr == "t_string") {
+		if(*tokitr == "t_text") {
 			StrOutStmt* output = new StrOutStmt(*lexitr);
 			insttable.push_back(output);
 		}
-		else if(*tokitr == "t_integer") {
+		else if(*tokitr == "t_number") {
 			IntOutStmt* output = new IntOutStmt(stoi(*lexitr));
 			insttable.push_back(output);
 		}
@@ -800,17 +803,10 @@ private:
 			symboltable[variable] = dataType;
 		}
 	}
-	void populatePrecMap(istream& infile) {
-		string lexeme;
-		string valueString;
-		while (infile >> lexeme >> valueString) {
-			precMap[lexeme] = stoi(valueString);
-		}
-	}
 public:
 	Compiler(){}
 	// headers may not change
-	Compiler(istream& source, istream& symbols,istream& prec){
+	Compiler(istream& source, istream& symbols){
 		// build precMap - include logical, relational, arithmetic operators
 		precMap["or"] = 5;
 		precMap["and"] = 4;
@@ -827,7 +823,6 @@ public:
 		precMap["%"] = 1;
 		populateTokenLexemes(source);
 		populateSymbolTable(symbols);
-		populatePrecMap(prec);
 	}
 
 	// The compile method is responsible for getting the instruction
@@ -887,7 +882,6 @@ public:
 	void run() {
 		pc = 0;
 		while (pc < insttable.size()) {
-			cout << pc << endl;
 			insttable.at(pc)->execute();
 		}
 	}
@@ -930,18 +924,59 @@ void dump() {
 }
 
 
-int main(){
-	ifstream source("sourceTwo.txt");
-	ifstream symbols("symbol.txt");
-	ifstream prec("prec.txt");
+int main() {
+    vector<pair<string, string>> tests = {
+        {"../ValidTests/dataFiles/sourceOne.txt", "../ValidTests/varFiles/symbolOne.txt"},
+        {"../ValidTests/dataFiles/sourceTwo.txt", "../ValidTests/varFiles/symbolTwo.txt"},
+        {"../ValidTests/dataFiles/sourceThree.txt", "../ValidTests/varFiles/symbolThree.txt"},
+        {"../ValidTests/dataFiles/sourceFour.txt", "../ValidTests/varFiles/symbolFour.txt"},
+        {"../ValidTests/dataFiles/sourceFive.txt", "../ValidTests/varFiles/symbolFive.txt"},
+        {"../ValidTests/dataFiles/sourceSix.txt", "../ValidTests/varFiles/symbolSix.txt"},
+        {"../ValidTests/dataFiles/sourceSeven.txt", "../ValidTests/varFiles/symbolSeven.txt"},
+        {"../ValidTests/dataFiles/sourceEight.txt", "../ValidTests/varFiles/symbolEight.txt"},
+        {"../ValidTests/dataFiles/sourceNine.txt", "../ValidTests/varFiles/symbolNine.txt"},
+        {"../ValidTests/dataFiles/sourceTen.txt", "../ValidTests/varFiles/symbolTen.txt"},
+        {"../ValidTests/dataFiles/sourceEleven.txt", "../ValidTests/varFiles/symbolEleven.txt"},
+        {"../ValidTests/dataFiles/sourceTwelve.txt", "../ValidTests/varFiles/symbolTwelve.txt"},
+        {"../ValidTests/dataFiles/sourceThirteen.txt", "../ValidTests/varFiles/symbolThirteen.txt"}
+    };
 
-	if (!source || !symbols) {
-		cout << "Error opening files." << endl;
-		exit(-1);
-	}
-	Compiler c(source, symbols,prec);
-	c.compile();
-	dump();
-	c.run();
-	return 0;
+    for (int i = 0; i < tests.size(); i++) {
+        cout << "\n==============================" << endl;
+        cout << "Running test " << (i + 1) << endl;
+        cout << "Source: " << tests[i].first << endl;
+        cout << "Symbol: " << tests[i].second << endl;
+        cout << "==============================" << endl;
+
+        ifstream source(tests[i].first);
+        ifstream symbols(tests[i].second);
+
+        if (!source || !symbols) {
+            cout << "FAILED: Could not open files." << endl;
+            continue;
+        }
+
+        tokens.clear();
+        lexemes.clear();
+        symbolvalues.clear();
+        symboltable.clear();
+        insttable.clear();
+        pc = 0;
+
+        Compiler c(source, symbols);
+
+        if (c.compile()) {
+            cout << "COMPILE PASSED" << endl;
+            dump();
+
+            cout << "---PROGRAM OUTPUT---" << endl;
+            c.run();
+
+            cout << "---RUN FINISHED---" << endl;
+        } else {
+            cout << "COMPILE FAILED" << endl;
+        }
+    }
+
+    return 0;
 }

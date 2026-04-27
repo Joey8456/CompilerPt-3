@@ -14,7 +14,7 @@ t_input input
 s_lparen (
 t_id x
 s_rparen )
-t_if
+t_if if
 s_lparen (
 t_id x
 s_gt >
