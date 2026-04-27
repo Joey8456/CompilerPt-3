@@ -371,6 +371,7 @@ class InputStmt : public Stmt
         }
         void execute()
         {
+        	cout << "Input Value " + var + ": " << endl;
             cin >> symbolvalues[var];
             pc++;
         }
@@ -721,7 +722,7 @@ private:
 		string firstToken = *tokitr;
 		string firstLexeme = *lexitr;
 
-		if (firstToken == "t_string" && *peekTok == "s_rparen") { // handles if ("hello")
+		if (firstToken == "t_text" && *peekTok == "s_rparen") { // handles if ("hello")
 			string val = *lexitr;
 			tokitr++; lexitr++;
 			return new StringConstExpr(val);
@@ -745,11 +746,11 @@ private:
 		while (*tokitr != "s_rparen" && *tokitr != "s_semi") {
 			string token = *tokitr;
 			string lexeme = *lexitr;
-			if (token == "t_integer") {
+			if (token == "t_number") {
 				hasInt = true;
 				outputQueue.push_back(lexeme);
 			}
-			else if (token == "t_string") {
+			else if (token == "t_text") {
 				hasStr = true;
 				outputQueue.push_back(lexeme);
 			}
@@ -791,7 +792,17 @@ private:
 	void populateTokenLexemes(istream& infile) {
 		string token;
 		string lexeme;
-		while (infile >> token >> lexeme) {
+
+		while (infile >> token) {
+			if (token == "t_text") {
+				getline(infile, lexeme); // grab rest of line
+				if (!lexeme.empty() && lexeme[0] == ' ') {
+					lexeme = lexeme.substr(1); // remove leading space
+				}
+			} else {
+				infile >> lexeme;
+			}
+
 			tokens.push_back(token);
 			lexemes.push_back(lexeme);
 		}
@@ -799,7 +810,7 @@ private:
 	void populateSymbolTable(istream& infile) {
 		string variable;
 		string dataType;
-		while (infile >> variable >> dataType) {
+		while (infile >> dataType >> variable) {
 			symboltable[variable] = dataType;
 		}
 	}
@@ -830,7 +841,8 @@ public:
 	//TODO Add false case. ALSO ADD FOR VARS BEFORE
 	bool compile() {
 		tokitr = tokens.begin();
-		lexitr = lexemes.begin();bool VDECdone = false;
+		lexitr = lexemes.begin();
+		bool VDECdone = false;
 
 		if (*tokitr == "t_var") {
 			tokitr++; lexitr++; //pass var
@@ -968,7 +980,12 @@ int main() {
         if (c.compile()) {
             cout << "COMPILE PASSED" << endl;
             dump();
-
+            cout << "---PRINTING TOKENS AND LEXEMES---" << endl;
+            for (int j = 0; j < tokens.size() && j < lexemes.size(); j++) {
+                cout << j << ": " << tokens[j] << " | " << lexemes[j] << endl;
+            }
+            cout << "---END TOKENS AND LEXEMES---" << endl;
+            cout << endl;
             cout << "---PROGRAM OUTPUT---" << endl;
             c.run();
 
